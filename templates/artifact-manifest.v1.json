@@ -6,7 +6,7 @@
   "files": [
     {
       "path": "site/index.html",
-      "bytes": 1234,
+      "size": 1234,
       "sha256": "<sha256>"
     },
     {

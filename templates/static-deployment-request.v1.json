@@ -8,7 +8,7 @@
     "content": {
       "type": "string",
       "format": "uri",
-      "pattern": "^https://.+\\.zip(?:[?#].*)?$",
+      "pattern": "^https://[^?#]+\\.zip$",
       "description": "由可信中转服务返回的 ZIP HTTPS 地址；部署端必须自行执行来源 allowlist、下载、大小、哈希和压缩包安全校验。"
     }
   }

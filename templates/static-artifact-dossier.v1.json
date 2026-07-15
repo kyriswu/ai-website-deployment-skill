@@ -8,6 +8,7 @@
     "worktreeDirty": true,
     "localBundleRequired": false
   },
+  "safeToSubmit": true,
   "artifact": {
     "format": "zip",
     "archiveSha256": null,

@@ -14,6 +14,7 @@
     "worktreeDirty": null,
     "localBundleRequired": true
   },
+  "safeToSubmit": true,
   "artifact": {
     "format": "zip",
     "archiveSha256": "<sha256-of-archive>",
