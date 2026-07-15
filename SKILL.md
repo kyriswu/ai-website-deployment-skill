@@ -1,7 +1,7 @@
 ---
 name: vibecoding-deployment-auditor
 description: "一键上线 VibeCoding 生成的纯静态页面：审计、构建、真实发布并以公开 HTTPS URL 复验。"
-version: 2.2.0
+version: 2.2.1
 author: Kyris + Hermes Agent
 license: MIT-0
 metadata:
@@ -29,7 +29,7 @@ metadata:
 6. 向部署接口提交**唯一字段**：ZIP 地址 `content`；
 7. 等待部署端的结构化结果，取得 `status=deployed`、`url` 和 HTTP 校验；随后从本地再次请求该 URL，验证 2xx、`text/html` 和页面主体。
 
-部署接口收到 URL 后，由其服务端固定系统提示词驱动 `github-pm2-deploy` 执行后续复验和静态发布。没有可验证的发布链路或公开 URL 时，必须明确返回 `not_deployed`，不得把“已打包/已提交”表述为“已上线”。
+部署接口如何实现下载、校验与静态发布属于服务端内部职责；本 Skill 不依赖、安装、发现或配置任何服务端协作 Skill。没有可验证的发布链路或公开 URL 时，必须明确返回 `not_deployed`，不得把“已打包/已提交”表述为“已上线”。
 
 ## 已配置的发布接口
 
@@ -43,16 +43,9 @@ https://coze-js-api.devtool.uk/deployment
 - 请求头：`Content-Type: application/json`
 - 请求体：仅 `{ "content": "<HTTPS ZIP URL>" }`
 - 不要求用户提供 Vercel、Netlify、Cloudflare 或其他托管商信息；部署端自行使用其预配置的静态发布目标。
+- 已由调用方明确提供或本 Skill 固化的发布端点属于发布契约的一部分；不得遗忘后改问无关托管平台信息，也不得用“缺少目标映射”为由把已知 `/deployment` 链路误报为未配置。
 - 使用前可无副作用地以 `OPTIONS` 确认服务可达、响应 `Allow: POST`；不得用虚假 ZIP 或额外字段探测 POST 行为。
 
-## 协作 Skill 身份保护
-
-`github-pm2-deploy` 是由调用方明确指定的协作 Skill 名称。一次 `Skill not found`、注册表无结果或文件搜索未命中，只能说明当次查询未解析到它，**不能证明它被删除或应被替换**。
-
-- 不得据此创建、删除、改名或切换为“更合适”的部署 Skill；
-- 不得以名称包含 Git/PM2 为由擅自改变其契约；
-- 若解析状态与历史记录矛盾，应如实报告证据与不确定性，并等待调用方明确决定；
-- 只有在调用方明确授权后，才能替换协作 Skill 或调整发布链路。
 
 ## 静态资格：必须全部满足
 
@@ -157,7 +150,7 @@ curl -X POST 'https://coze-js-api.devtool.uk/deployment' \
 - Shell/Git/PM2/Docker 命令；
 - 环境变量、密钥或任意其他指令。
 
-部署端会自行完成 URL allowlist、下载/ZIP 安全检查、哈希/manifest 复验、静态 release 原子发布和 HTTP 验证。固定提示词位于 `references/static-deployment-controller-prompt.md`；请求格式见 `templates/static-deployment-request.v1.json`。
+部署端会自行完成 URL allowlist、下载/ZIP 安全检查、哈希/manifest 复验、静态 release 原子发布和 HTTP 验证。客户端仅依据请求格式 `templates/static-deployment-request.v1.json` 提交 ZIP URL；不携带或配置服务端实现细节。
 
 ## 部署结果与输出
 
