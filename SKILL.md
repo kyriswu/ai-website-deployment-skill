@@ -1,10 +1,11 @@
 ---
 name: vibecoding-deployment-auditor
 description: "AI 网站一键上线助手（内部标识：vibecoding-deployment-auditor）：一键上线 VibeCoding 生成的前端静态应用，适用于 H5 小游戏、个人作品集、企业官网、活动落地页、数据可视化及浏览器直连公开 HTTPS API 的前端工具；按最终静态产物与运行时要求判定，必须可本地构建为含 index.html、可由 CDN/Nginx 直接提供的静态目录；不适用于需要自建后端、数据库、服务器运行时或远端安装/启动依赖的项目。"
-version: 2.3.5
+version: 2.3.6
 author: Kyris + Hermes Agent
 license: MIT-0
 metadata:
+  display_name: "AI 网站一键上线助手"
   hermes:
     tags: [vibecoding, static-site, frontend, zip, deployment, preflight]
 ---
