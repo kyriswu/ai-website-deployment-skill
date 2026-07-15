@@ -3,78 +3,67 @@
   "schemaVersion": "1.0",
   "analyzer": {
     "name": "vibecoding-deployment-auditor",
-    "version": "1.3.0",
-    "analysisMode": "deep"
+    "version": "2.2.0",
+    "analysisMode": "static-only"
   },
   "source": {
-    "type": "git",
-    "remote": "https://github.com/owner/repository.git",
-    "commit": "<immutable-commit-sha-or-null>",
-    "branch": "main",
-    "worktreeDirty": false,
-    "localBundleRequired": false
+    "type": "local-static-artifact",
+    "remote": null,
+    "commit": null,
+    "branch": null,
+    "worktreeDirty": null,
+    "localBundleRequired": true
   },
-  "artifact": null,
-  "project": {
-    "name": "example-project",
-    "packageManager": "pnpm",
-    "workspace": false
+  "artifact": {
+    "format": "zip",
+    "archiveSha256": "<sha256-of-archive>",
+    "siteManifestSha256": "<sha256-of-artifact-manifest.json>",
+    "bytes": 0,
+    "fileCount": 0,
+    "uncompressedBytes": 0,
+    "siteRoot": "site",
+    "entryFile": "site/index.html",
+    "routingMode": "static-or-preconfigured-spa-fallback",
+    "manifestPath": "artifact-manifest.json"
   },
   "topology": {
-    "recommended": "static-with-api",
+    "recommended": "static-artifact",
     "confidence": "high",
-    "reason": "Frontend makes same-origin API calls and the repository includes a matching local API service.",
-    "safeToSubmit": true
+    "safeToSubmit": true,
+    "reason": "The submitted archive contains only a locally built static site and has no server runtime, same-origin API contract, secret, executable, or deployment instruction."
   },
   "services": [
     {
       "id": "web",
       "classification": "frontend-static",
-      "root": ".",
-      "build": {"command": "pnpm build", "evidence": {"path": "package.json", "startLine": 6, "endLine": 10}},
-      "artifactDir": "dist",
+      "root": "site",
+      "build": null,
+      "artifactDir": "site",
       "productionStart": null,
-      "status": "served"
-    },
-    {
-      "id": "api",
-      "classification": "api",
-      "root": "server",
-      "build": {"command": "npm run build", "evidence": {"path": "server/package.json", "startLine": 5, "endLine": 10}},
-      "productionStart": {"command": "npm start", "evidence": {"path": "server/package.json", "startLine": 5, "endLine": 10}},
-      "portEnvironmentVariable": "PORT",
       "status": "served"
     }
   ],
   "contracts": {
-    "clientCalls": [
-      {
-        "method": "POST",
-        "path": "/api/status/update",
-        "protocol": "http",
-        "clientEvidence": {"path": "src/store/playerStore.ts", "startLine": 200, "endLine": 215},
-        "serverMatch": {"path": "server/src/routes/status.ts", "startLine": 8, "endLine": 20},
-        "requiresReverseProxy": true
-      }
-    ]
+    "clientCalls": []
   },
   "runtimeRequirements": {
-    "environmentVariableNames": ["DATABASE_URL"],
-    "persistentPaths": ["uploads/"],
-    "externalDependencies": ["postgres"],
+    "environmentVariableNames": [],
+    "persistentPaths": [],
+    "externalDependencies": [],
     "migrations": [],
     "backgroundJobs": [],
     "protocolRequirements": []
   },
   "verification": [
-    {"method": "GET", "path": "/", "expectedStatus": [200]},
-    {"method": "POST", "path": "/api/status/update", "expectedStatus": [200, 201, 204]}
+    {
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": [200],
+      "expectedContentType": "text/html"
+    }
   ],
   "blockers": [],
   "risks": [],
-  "evidence": [
-    {"claim": "API listens on PORT", "path": "server/src/index.ts", "startLine": 25, "endLine": 35}
-  ],
   "security": {
     "containsSecretValues": false,
     "containsArbitraryServerCommands": false,
