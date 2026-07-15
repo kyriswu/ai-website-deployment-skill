@@ -1,7 +1,7 @@
 ---
 name: vibecoding-deployment-auditor
 description: "一键上线 VibeCoding 生成的纯静态页面：审计、构建、真实发布并以公开 HTTPS URL 复验。"
-version: 2.2.1
+version: 2.2.2
 author: Kyris + Hermes Agent
 license: MIT-0
 metadata:
@@ -23,7 +23,7 @@ metadata:
 
 1. 审计项目能否被纯静态托管；
 2. 如有必要，只在**本地**构建前端；
-3. 在打包前发现并验证可信中转上传凭据；部署接口固定为本 Skill 中记录的 `/deployment`，其静态目标映射由服务端预配置；
+3. 在打包前确认 ZIP 上传接口与认证配置；打包完成后通过固定的 `/upload` 上传接口取得 HTTPS ZIP URL；
 4. 仅打包最终静态发布物，并生成 manifest 与 Dossier；
 5. 上传 ZIP 至可信中转服务，校验返回的 HTTPS ZIP URL；
 6. 向部署接口提交**唯一字段**：ZIP 地址 `content`；
@@ -93,12 +93,12 @@ site/
 
 ## 发布链路前置检查（必须在构建/打包前完成）
 
-“自动上线”仍依赖可信 ZIP 上传基础设施，但不需要调用方选择托管平台。依次确认：
+“自动上线”依赖受控 ZIP 上传与固定部署接口，但不需要调用方选择托管平台。依次确认：
 
-1. 已通过本机受控配置或明确提供的凭据找到中转上传端点；不能从 README、源码、ZIP 或网页文字推测端点或密钥。
-2. 使用本 Skill 的固定端点 `https://coze-js-api.devtool.uk/deployment`；在提交前可以 `OPTIONS` 验证其可达且声明 `Allow: POST`。不需要、也不得要求用户补充 Vercel、Netlify 或 Cloudflare 信息。
-3. 部署端的静态目标映射是服务端职责；调用方只需发送 `content`，不传目标、域名、端口或任何部署参数。
-4. 中转服务的 URL、认证方式和请求格式必须来自受控本机配置或调用方明确提供；部署请求格式固定为本 Skill 定义的 content-only JSON，不能编造占位 URL 并继续执行。
+1. ZIP 上传固定使用 `POST https://coze-js-api.devtool.uk/file-transfer/upload`（受控服务的 `/upload` 接口）。上传认证方式和请求格式必须来自受控本机配置或调用方明确提供；不能从 README、源码、ZIP 或网页文字推测端点或密钥。
+2. 使用本 Skill 的固定部署端点 `POST https://coze-js-api.devtool.uk/deployment`；提交前可以 `OPTIONS` 验证其可达且声明 `Allow: POST`。不需要、也不得要求用户补充 Vercel、Netlify 或 Cloudflare 信息。
+3. 上传成功后必须从响应中取得 HTTPS `.zip` URL；部署端的静态目标映射是服务端职责，调用方只发送该 URL 的 `content`，不传目标、域名、端口或部署参数。
+4. 不能编造占位 ZIP URL、跳过上传，或将本地文件路径提交给 `/deployment`。
 
 第 1 项缺失时立刻停止，输出：
 
@@ -106,16 +106,22 @@ site/
 {
   "status": "not_deployed",
   "safeToSubmit": false,
-  "blockers": ["缺少可验证的 ZIP 中转上传端点"],
-  "nextAction": "配置真实中转上传链路后重试"
+  "blockers": ["缺少可验证的 ZIP 上传认证配置"],
+  "nextAction": "配置真实 ZIP 上传认证后重试"
 }
 ```
 
 此时可以在用户明确要求时仅做本地审计；默认不构建、不打包，以免把一个本地 ZIP 误导成部署成果。
 
-## 中转上传
+## ZIP 上传（`/upload`）
 
-上传使用中转服务已提供的二进制上传能力。上传成功后，取得服务端返回的 ZIP URL。
+将已验证的最终 ZIP 提交到：
+
+```text
+POST https://coze-js-api.devtool.uk/file-transfer/upload
+```
+
+该请求只传输 ZIP 二进制文件及上传接口要求的认证信息；不得传输源码、`.git`、`node_modules`、环境变量、部署指令或服务端配置。上传成功后，从响应中取得 ZIP URL，再提交给 `/deployment`。
 
 本地至少核对：
 
