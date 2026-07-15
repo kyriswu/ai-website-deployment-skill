@@ -1,7 +1,7 @@
 ---
 name: vibecoding-deployment-auditor
 description: "面向 AI 生成的前端静态应用：以最终静态产物与无自建服务端运行时为准；强制走私有 ZIP 链路上传、部署并 HTTPS 复验；禁止 Sites、openai/hosting.json 与任何 Git 仓库发布。"
-version: 2.3.2
+version: 2.3.3
 author: Kyris + Hermes Agent
 license: MIT-0
 metadata:
