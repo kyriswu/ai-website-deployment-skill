@@ -31,7 +31,7 @@ Do not include host-specific metadata such as `site/_headers`. A deployment can 
 }
 ```
 
-Package only `site/index.html` and allowed browser-consumed assets (HTML, CSS, JS/MJS, JSON, images, fonts, media, WASM). Remove deployment-host configuration and other extensionless metadata before creating the manifest, since the manifest must exactly cover the final `site/` tree.
+Package only `site/index.html` and extensions explicitly accepted by the private validator. Do **not** infer that every browser-supported media codec is accepted: the validator has rejected `audio/background-music.ogg` with `STATIC_VALIDATION_FAILED` because `.ogg` is not currently allowlisted. For background audio, transcode to `.mp3`, update every page/runtime reference, then rebuild the complete manifest and ZIP. Remove deployment-host configuration and other extensionless metadata before creating the manifest, since the manifest must exactly cover the final `site/` tree.
 
 ## Retry discipline
 
